@@ -5,11 +5,7 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import re
-import pymorphy2
 from tqdm import tqdm
-
-# Инициализация лемматизатора
-morph = pymorphy2.MorphAnalyzer()
 
 # Функция предобработки текста
 def preprocess_text(text):
@@ -23,21 +19,13 @@ def preprocess_text(text):
     text = re.sub(r'\s+', ' ', text).strip()
     return text
 
-# Функция лемматизации текста
-def lemmatize_text(text):
-    tokens = text.split()
-    lemmas = [morph.parse(token)[0].normal_form for token in tokens]
-    return ' '.join(lemmas)
-
-# Объединяем предобработку и лемматизацию
+# Предобработка без лемматизации
 def preprocess_and_lemmatize(text):
-    preprocessed_text = preprocess_text(text)
-    lemmatized_text = lemmatize_text(preprocessed_text)
-    return lemmatized_text
+    return preprocess_text(text)
 
 # Функция для семантического поиска
 def semantic_search(query, model, embeddings, data, top_k=5):
-    # Предобработка и лемматизация запроса
+    # Предобработка запроса
     query_clean = preprocess_and_lemmatize(query)
     # Вычисление эмбеддинга для запроса
     query_embedding = model.encode([query_clean])
@@ -58,7 +46,6 @@ def load_data():
 def load_model():
     model = SentenceTransformer('sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2')
     return model
-
 
 # Инициализация данных и модели
 data, embeddings = load_data()

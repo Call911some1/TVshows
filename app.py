@@ -50,17 +50,15 @@ def semantic_search(query, model, embeddings, data, top_k=5):
     return results
 
 # Загрузка данных и модели
-@st.cache_data
 def load_data():
     data = pd.read_csv('processed_tvshows_data.csv')
     embeddings = np.load('embeddings.npy')
     return data, embeddings
 
-# Загрузка модели
-@st.cache_resource
 def load_model():
     model = SentenceTransformer('sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2')
     return model
+
 
 # Инициализация данных и модели
 data, embeddings = load_data()

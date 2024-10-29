@@ -38,11 +38,13 @@ def semantic_search(query, model, embeddings, data, top_k=5):
     return results
 
 # Загрузка данных и модели
+@st.cache_data
 def load_data():
     data = pd.read_csv('processed_tvshows_data.csv')
     embeddings = np.load('embeddings.npy')
     return data, embeddings
 
+@st.cache_resource
 def load_model():
     model = SentenceTransformer('sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2')
     return model
@@ -58,32 +60,35 @@ st.write("Введите описание или ключевые слова, ч
 # Поле ввода для запроса
 query = st.text_input("Введите описание или ключевые слова:")
 
+# Ползунок для выбора количества выводимых результатов
+top_k = st.slider("Сколько сериалов вы хотите увидеть?", min_value=1, max_value=20, value=5)
+
 # Кнопка для выполнения поиска
 if st.button("Поиск"):
     if query:
         # Показ сообщения о загрузке
         with st.spinner("Идет поиск похожих сериалов..."):
-            results = semantic_search(query, model, embeddings, data)
+            results = semantic_search(query, model, embeddings, data, top_k=top_k)
 
-    # Вывод результатов
-    st.write("## Результаты поиска")
-    for index, row in results.iterrows():
-        # Увеличение размера и выделение названия
-        st.markdown(f"<h3 style='text-align: center; '>{row['tvshow_title']}</h3>", unsafe_allow_html=True)
-        
-        # Центрирование изображения
-        st.markdown(
-            f"<div style='display: flex; justify-content: center;'>"
-            f"<img src='{row['image_url']}' width='400'></div>", 
-            unsafe_allow_html=True
-        )
-        
-        # Остальная информация о сериале
-        st.write(f"**Жанры:** {row['genres']}")
-        st.write(f"**Год:** {row['year']}")
-        st.write(f"**Страна:** {row['country']}")
-        st.write(f"**Описание:** {row['description']}")
-        st.write(f"[Подробнее]({row['page_url']})")
-        st.write("---")
+        # Вывод результатов
+        st.write("## Результаты поиска")
+        for index, row in results.iterrows():
+            # Увеличение размера и выделение названия
+            st.markdown(f"<h3 style='text-align: center; '>{row['tvshow_title']}</h3>", unsafe_allow_html=True)
+            
+            # Центрирование изображения
+            st.markdown(
+                f"<div style='display: flex; justify-content: center;'>"
+                f"<img src='{row['image_url']}' width='400'></div>", 
+                unsafe_allow_html=True
+            )
+            
+            # Остальная информация о сериале
+            st.write(f"**Жанры:** {row['genres']}")
+            st.write(f"**Год:** {row['year']}")
+            st.write(f"**Страна:** {row['country']}")
+            st.write(f"**Описание:** {row['description']}")
+            st.write(f"[Подробнее]({row['page_url']})")
+            st.write("---")
     else:
         st.warning("Пожалуйста, введите запрос для поиска.")

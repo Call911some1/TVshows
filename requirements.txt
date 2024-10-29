@@ -4,4 +4,5 @@ numpy==2.0.2
 sentence-transformers==3.2.1
 scikit-learn==1.5.2
 pymorphy2==0.9.1
+pymorphy2-dicts-ru==2.4.417127.4579844
 tqdm==4.66.6
